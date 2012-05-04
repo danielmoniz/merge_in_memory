@@ -1,0 +1,14 @@
+This tool uses Python's difflib to generate diffs and allow for merges between
+strings (not files!).
+
+The difference between this and most tools is that the text and the diffs do
+not have to be files in a filesystem! It allows for, say, the storage of diffs
+in a database, to be pulled out and applied dynamically within your program. No
+files need to be created or deleted, and no physical repository need exist on
+the server.
+
+I created this tool to help out with another project (author_collab), but given
+its clear use cases, I thought I would keep it separate and allow anyone to use
+this as a package. I am open to code contributions from others.
+
+If you make use of this, let me know!
