@@ -16,7 +16,7 @@ class InlineMerge:
         output = '\n'.join(list(diff))
         return output
 
-    def diff_apply(self, text, diff_text):
+    def diff_apply(self, text, diff_text, reverse=False):
         """Apply a single diff to a text."""
         diff_lines = diff_text.splitlines()
         text_lines = text.splitlines()
@@ -31,16 +31,34 @@ class InlineMerge:
             elif line.startswith('---') or line.startswith('+++'):
                 pass
             elif line.startswith('-'):
-                # Delete the line.
-                del text_patched[i-1]
-                i -= 1
+                if not reverse:
+                    # Delete the line.
+                    del text_patched[i-1]
+                    i -= 1
+                else:
+                    # Add in a new line.
+                    line = line[1:]
+                    text_patched.insert(i-1, line)
             elif line.startswith('+'):
-                # Add in a new line.
-                line = line[1:]
-                text_patched.insert(i-1, line)
+                if not reverse:
+                    # Add in a new line.
+                    line = line[1:]
+                    text_patched.insert(i-1, line)
+                else:
+                    # Delete the line.
+                    del text_patched[i-1]
+                    i -= 1
 
         text_patched = '\n'.join(text_patched)
         return text_patched
+
+    def diff_apply_bulk(self, text, diff_list, reverse=False):
+        """Apply a number of diffs in order. Do this naively initially."""
+        if reverse:
+            diff_list = diff_list[::-1]
+        for diff in diff_list:
+            text = self.diff_apply(text, diff, reverse)
+        return text
 
     def get_info_from_diff_info_line(self, line):
         line = line.replace('-', '')
@@ -108,11 +126,21 @@ new test
 new test
 """
 
+"""
 merger = InlineMerge()
 diff = merger.diff_make(text1, text2)
 #print diff
 #print '-'*40
 
 new_text = merger.diff_apply(text1, diff)
-#print "NEW (unpatched) TEXT: " + '-'*30
-#print text2
+print "NEW TEXT: " + '-'*30
+print new_text
+print "NEW (unpatched) TEXT: " + '-'*30
+print text2
+
+new_text1 = merger.diff_apply(text2, diff, reverse=True)
+print "ORIGINAL TEXT: " + '-'*30
+print text1
+print "NEW REVERSE PATCHED TEXT: " + '-'*30
+print new_text1
+"""

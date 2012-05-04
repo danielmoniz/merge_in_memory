@@ -1,6 +1,6 @@
 import unittest
 
-import inline_merge as merge_module
+import merge_diff as merge_module
 
 reload(merge_module)
 
@@ -33,13 +33,35 @@ class DiffTestGeneral(DiffTest):
     """Test a fairly large and general set of texts."""
     def testDiffEmpty(self):
         diff = self.inline_merge.diff_make('text', 'text')
-        self.assertEquals('', str(diff))
+        self.assertEquals('', diff)
         
         diff = self.inline_merge.diff_make('', '')
-        self.assertEquals('', str(diff))
+        self.assertEquals('', diff)
         
         diff = self.inline_merge.diff_make('\n', '\n')
-        self.assertEquals('', str(diff))
+        self.assertEquals('', diff)
+
+    def testDiffExistence(self):
+        text1 = """first line
+second line"""
+        text2 = """changed first line
+second line"""
+        diff = self.inline_merge.diff_make(text1, text2)
+        self.assertNotEquals(text1, diff)
+
+        text1 = """first line
+second line"""
+        text2 = """first line
+second line changed"""
+        diff = self.inline_merge.diff_make(text1, text2)
+        self.assertNotEquals(text1, diff)
+
+        text1 = """first line different
+second line"""
+        text2 = """first line
+second line just as different"""
+        diff = self.inline_merge.diff_make(text1, text2)
+        self.assertNotEquals(text1, diff)
 
 class MergeTestGeneral(DiffTest):
     """Attempt to merge a large and general set of texts."""
@@ -50,6 +72,34 @@ class MergeTestGeneral(DiffTest):
         diff = self.inline_merge.diff_make(self.text1, self.text2)
         new_text2 = self.inline_merge.diff_apply(self.text1, diff)
         self.assertEquals(self.text2, new_text2)
+
+        new_text2_bulk = self.inline_merge.diff_apply_bulk(self.text1, [diff])
+        self.assertEquals(self.text2, new_text2_bulk)
+
+        # And for good measure...
+        self.assertEquals(new_text2, new_text2_bulk)
+
+class MergeTestTransitive(DiffTest):
+    """Compare composed merges."""
+    def testMergeTransitiveBasic(self):
+        text1 = """Everything is still."""
+        text2 = """Times are changing."""
+        text3 = """Times have changed."""
+
+        diff12 = self.inline_merge.diff_make(text1, text2)
+        diff23 = self.inline_merge.diff_make(text2, text3)
+        diff13 = self.inline_merge.diff_make(text1, text3)
+
+        merge12 = self.inline_merge.diff_apply(text1, diff12)
+        merge123 = self.inline_merge.diff_apply(merge12, diff23)
+
+        merge13 = self.inline_merge.diff_apply_bulk(text1, [diff12, diff23])
+
+        self.assertEquals(merge123, merge13)
+
+        # Test reverse bulk merging
+        merge31 = self.inline_merge.diff_apply_bulk(merge12, [diff12, diff23], reverse=True)
+
 
 if __name__ == "__main__":
   unittest.main()

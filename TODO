@@ -1,0 +1,2 @@
+- Add more test cases.
+- Improve the diff_apply_bulk() algorithm so that they are not applied naively.
