@@ -1,12 +1,12 @@
 import unittest
 
-import merge_diff as merge_module
+import merge_in_memory as merge_module
 
 reload(merge_module)
 
 class DiffTest(unittest.TestCase):
     def setUp(self):
-        self.inline_merge = merge_module.InlineMerge()
+        self.inline_merge = merge_module.Merger()
         self.text1 = """Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Integer
 eu lacus accumsan arcu fermentum euismod. Donec pulvinar porttitor
 tellus. Aliquam venenatis. Donec facilisis pharetra tortor.  In nec

@@ -1,6 +1,6 @@
 import difflib
 
-class InlineMerge:
+class Merger:
     """Stores methods for creating and merging diffs stored in variables."""
 
     def diff_make(self, text1, text2):
@@ -127,7 +127,7 @@ new test
 """
 
 """
-merger = InlineMerge()
+merger = Merger()
 diff = merger.diff_make(text1, text2)
 #print diff
 #print '-'*40
