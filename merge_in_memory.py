@@ -5,21 +5,31 @@ class Merger:
 
     def diff_make(self, text1, text2):
         """Returns the unified diff for two strings."""
-        text1_lines = text1.splitlines()
-        text2_lines = text2.splitlines()
+        text1_lines = self.manual_splitlines(text1)
+        text2_lines = self.manual_splitlines(text2)
         differ = difflib.Differ()
         diff = difflib.unified_diff(text1_lines, text2_lines, lineterm='')
 
         return self.diff_to_string(diff)
 
+    def manual_splitlines(self, text):
+        """Since str.splitlines() removes \\r's from the text as well as \\n's
+        (in one fell swoop), use a manual method to split up the lines.
+        NOTE: If lines are split with something other than \\n, this method
+        will not function properly!
+        """
+        return text.split('\n')
+
+
     def diff_to_string(self, diff):
+        """Simply takes a generator diff (eg. from difflib) and outputs it as a string."""
         output = '\n'.join(list(diff))
         return output
 
     def diff_apply(self, text, diff_text, reverse=False):
-        """Apply a single diff to a text."""
-        diff_lines = diff_text.splitlines()
-        text_lines = text.splitlines()
+        """Apply a single diff to a text. If reverse is set, apply it oppositely."""
+        diff_lines = self.manual_splitlines(diff_text)
+        text_lines = self.manual_splitlines(text)
         text_patched = text_lines
         # Iterate through diff sections
         i = 0;
@@ -61,6 +71,9 @@ class Merger:
         return text
 
     def get_info_from_diff_info_line(self, line):
+        """Returns the information from a line if it it is a line that provides line info.
+        NOTE: This function falls apart if called on any other type of line.
+        """
         line = line.replace('-', '')
         line = line.replace('+', '')
         line = line.strip('@')
@@ -71,76 +84,3 @@ class Merger:
         new_info = new_info.split(',')
         #print line
         return old_info, new_info
-
-    def merge_apply_bulk(self, text, diffs):
-        """Apply a number of diffs to a string in bulk."""
-        pass
-
-text1 = """a
-test
-test
-test
-test
-test
-show
-test
-test
-This is a test
-And another line.
-test
-test2
-test
-test
-test
-test
-test
-test
-new test
-new test
-new test
-"""
-
-text2 = """
-test
-test
-test
-test
-test
-show
-test
-test
-new test
-new test 2
-This is a test
-A changed line.
-test
-test
-test
-test
-test
-test
-test
-test
-new test
-new test
-new test
-"""
-
-"""
-merger = Merger()
-diff = merger.diff_make(text1, text2)
-#print diff
-#print '-'*40
-
-new_text = merger.diff_apply(text1, diff)
-print "NEW TEXT: " + '-'*30
-print new_text
-print "NEW (unpatched) TEXT: " + '-'*30
-print text2
-
-new_text1 = merger.diff_apply(text2, diff, reverse=True)
-print "ORIGINAL TEXT: " + '-'*30
-print text1
-print "NEW REVERSE PATCHED TEXT: " + '-'*30
-print new_text1
-"""

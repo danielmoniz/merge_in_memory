@@ -79,6 +79,25 @@ class MergeTestGeneral(DiffTest):
         # And for good measure...
         self.assertEquals(new_text2, new_text2_bulk)
 
+    def testMergeReverseBasic(self):
+        text1 = """line 1 here
+
+line 3 here"""
+        text2 = """line 1 change here
+
+line 3 here"""
+        diff = self.inline_merge.diff_make(text1, text2)
+        new_text1 = self.inline_merge.diff_apply(text2, diff, reverse=True)
+        self.assertEquals(text1, new_text1)
+
+    def testMergeReverseSpecialChars(self):
+        text1 = u'# h1 test #\r\nboldtextisnotbold\r\n\r\nboldtextisnotbold\r\n\r\nChanges #1\r\n\r\nChanges #2'
+        text2 = u'# h1 test #\r\nboldtextisnotbold\r\n\r\nboldtextisnotbold\r\n\r\nChanges #1'
+
+        diff = self.inline_merge.diff_make(text1, text2)
+        new_text1 = self.inline_merge.diff_apply(text2, diff, reverse=True)
+        self.assertEquals(text1, new_text1)
+
 class MergeTestTransitive(DiffTest):
     """Compare composed merges."""
     def testMergeTransitiveBasic(self):
