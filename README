@@ -12,3 +12,45 @@ its clear use cases, I thought I would keep it separate and allow anyone to use
 this as a package. I am open to code contributions from others.
 
 If you make use of this, let me know!
+
+--------------------
+
+A simple example of its usage:
+
+    import merge_in_memory as mim_module
+
+    str1 = """line 1
+    line 2"""
+    str2 = """line 1
+    line 2 changed"""
+
+    merger = mim_module.Merger()
+    print merger.diff_make(str1, str2)
+
+This will output:
+
+    --- 
+    +++ 
+    @@ -1,2 +1,2 @@
+     line 1
+     -line 2
+     +line 2 changed
+
+ diffs are simply strings (rather than generators, as they are when using
+ difflib).You can create a number of diffs and apply them at once (ie.
+ fast-forward through a history or track back) with the `diff_apply_bulk()`
+ function.
+
+ To reverse into the history, simply ensure that the `reverse` attribute is set
+ to True when calling either `diff_bulk()` or `diff_apply_bulk`. For example:
+
+     merge = self.inline_merge.diff_apply_bulk(text3, [diff1, diff2], reverse=True)
+
+ If you start with text1 and generated text2 and text3 with diff1 and diff2,
+ then text1 is rebuilt with the above line of code. Note that the list of diffs
+ are still in ascending order. A 'merge', ie. applying a diff to a string, is
+ itself a string.
+
+ All of this allows one to store diffs in the database as simple VARCHARs (or
+ what-have-you). I can pull them out in order and apply them in either
+ direction to generate the text I want, as long as I have a starting point.
